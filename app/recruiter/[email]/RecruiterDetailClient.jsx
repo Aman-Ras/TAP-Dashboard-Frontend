@@ -61,8 +61,8 @@ export default function RecruiterDetailClient({ data, email, initialStart, initi
   return (
     <div>
       {/* ── Hero ─────────────────────────────────────── */}
-      <div className="card-tight" style={{ marginBottom:14, overflow:'hidden' }}>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:16, padding:'20px 24px', background:'var(--surface)' }}>
+      <div className="card-tight" style={{ marginBottom:14 }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:16, padding:'20px 24px', background:'var(--surface)', borderRadius:'12px 12px 0 0' }}>
           <div style={{ display:'flex', alignItems:'center', gap:16 }}>
             <div style={{ width:52, height:52, borderRadius:14, background:bg, color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, fontWeight:700, flexShrink:0 }}>
               {(name || email || '?').slice(0,2).toUpperCase()}
@@ -84,6 +84,8 @@ export default function RecruiterDetailClient({ data, email, initialStart, initi
           display:'flex', alignItems:'center', gap:12, flexWrap:'wrap',
           padding:'12px 24px',
           background:'var(--surface-2)', borderTop:'1px solid var(--border)',
+          borderRadius:'0 0 12px 12px',
+          position:'relative', zIndex:10, overflow:'visible',
         }}>
           {/* Position filter */}
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>

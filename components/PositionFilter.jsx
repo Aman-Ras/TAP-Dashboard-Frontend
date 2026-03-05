@@ -89,7 +89,7 @@ export default function PositionFilter({ positions = [], current = '', onChange 
           position: 'absolute',
           top: 'calc(100% + 6px)',
           left: 0,
-          zIndex: 100,
+          zIndex: 9999,
           width: 280,
           background: 'var(--surface-2)',
           border: '1px solid var(--border)',
