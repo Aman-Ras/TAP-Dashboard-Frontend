@@ -32,6 +32,44 @@ const IconFile    = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="
 const IconCheck   = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
 const IconX       = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
 
+const PAGE_SIZE = 50;
+
+function Pagination({ total, page, onChange }) {
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  if (totalPages <= 1) return null;
+  const from = (page - 1) * PAGE_SIZE + 1;
+  const to   = Math.min(page * PAGE_SIZE, total);
+  const btnStyle = (active, disabled) => ({
+    padding: '5px 12px', borderRadius: 7, fontSize: 12, fontWeight: 500, cursor: disabled ? 'default' : 'pointer',
+    border: '1px solid var(--border)',
+    background: active ? 'var(--nav-active)' : 'var(--surface-2)',
+    color: disabled ? 'var(--muted)' : active ? 'var(--text)' : 'var(--muted-2)',
+    opacity: disabled ? 0.5 : 1,
+  });
+
+  // Build page numbers to show
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= page - 2 && i <= page + 2)) pages.push(i);
+    else if (pages[pages.length - 1] !== '…') pages.push('…');
+  }
+
+  return (
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 16px', borderTop:'1px solid var(--border)', background:'var(--surface-2)', flexWrap:'wrap', gap:8 }}>
+      <span style={{ fontSize:12, color:'var(--muted)' }}>{from}–{to} of {total}</span>
+      <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+        <button style={btnStyle(false, page === 1)} disabled={page === 1} onClick={() => onChange(page - 1)}>← Prev</button>
+        {pages.map((p, i) =>
+          p === '…'
+            ? <span key={`e${i}`} style={{ fontSize:12, color:'var(--muted)', padding:'0 4px' }}>…</span>
+            : <button key={p} style={btnStyle(p === page, false)} onClick={() => onChange(p)}>{p}</button>
+        )}
+        <button style={btnStyle(false, page === totalPages)} disabled={page === totalPages} onClick={() => onChange(page + 1)}>Next →</button>
+      </div>
+    </div>
+  );
+}
+
 export default function RecruiterDetailClient({ data, email, initialStart, initialEnd, initialPosition = '', positions = [] }) {
   const router = useRouter();
   const [filters, setFilters] = useState({
@@ -39,10 +77,12 @@ export default function RecruiterDetailClient({ data, email, initialStart, initi
     endDate:   initialEnd,
     position:  initialPosition,
   });
+  const [page, setPage] = useState(1);
 
   const push = (next) => {
     const merged = { ...filters, ...next };
     setFilters(merged);
+    setPage(1);
     const params = new URLSearchParams();
     if (merged.startDate) params.set('startDate', merged.startDate);
     if (merged.endDate)   params.set('endDate',   merged.endDate);
@@ -124,7 +164,7 @@ export default function RecruiterDetailClient({ data, email, initialStart, initi
       <div className="card-tight" style={{ marginBottom:14, overflow:'hidden' }}>
         <SectionHeader icon={<IconCalendar />} title="Interviews" badge={interviews.total} />
         <div style={{ padding:20 }}>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10, marginBottom:18 }}>
+          <div className="stat-grid-3">
             {statusOrder.map((s) => (
               <StatCard key={s} label={s} value={interviews.statusBreakdown[s] ?? 0} color={statusColors[s]} icon={statusIcons[s]} />
             ))}
@@ -144,7 +184,7 @@ export default function RecruiterDetailClient({ data, email, initialStart, initi
                     </tr>
                   </thead>
                   <tbody>
-                    {interviews.list.slice(0,50).map((iv, i) => (
+                    {interviews.list.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE).map((iv, i) => (
                       <tr key={i}>
                         <td style={{ fontWeight:500 }}>{iv.candidateName || iv.candidate || '—'}</td>
                         <td style={{ color:'var(--muted-2)' }}>{iv.applyFor || iv.position || iv.jobTitle || '—'}</td>
@@ -177,11 +217,7 @@ export default function RecruiterDetailClient({ data, email, initialStart, initi
                   </tbody>
                 </table>
               </div>
-              {interviews.list.length > 50 && (
-                <div style={{ padding:'10px 16px', fontSize:11, color:'var(--muted)', textAlign:'center', borderTop:'1px solid var(--border)', background:'var(--surface-2)' }}>
-                  Showing 50 of {interviews.list.length}
-                </div>
-              )}
+              <Pagination total={interviews.list.length} page={page} onChange={setPage} />
             </div>
           ) : (
             <div style={{ textAlign:'center', padding:'40px 16px', color:'var(--muted)', fontSize:13 }}>
@@ -195,7 +231,7 @@ export default function RecruiterDetailClient({ data, email, initialStart, initi
       <div className="card-tight" style={{ marginBottom:14, overflow:'hidden' }}>
         <SectionHeader icon={<IconFile />} title="Resume Matching" badge={resumeSessions.totalSessions} />
         <div style={{ padding:20 }}>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, marginBottom:18 }}>
+          <div className="stat-grid">
             <StatCard label="Sessions"          value={resumeSessions.totalSessions}  color="info"    icon={<IconFile />} />
             <StatCard label="Resumes Uploaded"  value={resumeSessions.totalResumes}   color="warning" icon={<IconFile />} />
             <StatCard label="Passed Threshold"  value={resumeSessions.totalPassed}    color="success" icon={<IconCheck />} />

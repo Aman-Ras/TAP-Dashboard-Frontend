@@ -120,7 +120,7 @@ export default function CandidatesClient({ candidates, positions, recruiters, fi
       </div>
 
       {/* Stat cards row */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:16 }}>
+      <div className="stat-grid">
         {[
           { label:'Completed', value: candidates.length, color:'#f0f0f0' },
           { label:'With Score', value: withScore.length, color:'#60a5fa' },
@@ -136,7 +136,7 @@ export default function CandidatesClient({ candidates, positions, recruiters, fi
       </div>
 
       {/* Score distribution chart */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 320px', gap:12, marginBottom:16 }}>
+      <div className="chart-grid-wide">
         <div className="card">
           <p style={{ fontWeight:600, fontSize:13, color:'var(--text)', marginBottom:16 }}>Score Distribution</p>
           <BarChartWrapper data={scoreBuckets} dataKey="value" xKey="name" height={180} />

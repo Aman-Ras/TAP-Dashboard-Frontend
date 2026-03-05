@@ -83,7 +83,7 @@ export default async function OverviewPage({ searchParams }) {
       />
 
       {/* Stat cards */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
+      <div className="stat-grid">
         <StatCard label="Total Interviews"
           value={overview.totalInterviews.toLocaleString()}
           sub={periodLabel ? `in selected period` : `${overview.thisMonthInterviews} this month`}
@@ -110,7 +110,7 @@ export default async function OverviewPage({ searchParams }) {
       </div>
 
       {/* Chart row */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 300px', gap:12, marginBottom:12 }}>
+      <div className="chart-grid">
         {top10.length > 0 && (
           <div className="card">
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16 }}>
