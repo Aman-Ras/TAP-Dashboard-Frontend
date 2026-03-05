@@ -9,7 +9,7 @@ export default async function ComparisonPage() {
   } catch {
     return (
       <div className="text-[var(--danger)] p-8">
-        Could not load comparison data. Make sure the backend is running on port 5002.
+        Could not load comparison data. Make sure the backend server is running.
       </div>
     );
   }
