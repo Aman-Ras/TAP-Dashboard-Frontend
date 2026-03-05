@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import ThemeToggle from './ThemeToggle';
 
 const NAV = [
   {
@@ -110,6 +111,11 @@ export default function Sidebar() {
         className="px-3 py-4"
         style={{ borderTop: '1px solid var(--border-subtle)' }}
       >
+        {/* Theme toggle */}
+        <div className="px-1 mb-3 flex justify-center">
+          <ThemeToggle />
+        </div>
+
         <div
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg"
           style={{ background: 'var(--surface-2)' }}

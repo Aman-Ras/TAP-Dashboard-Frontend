@@ -1,11 +1,10 @@
-// Value-color only — the card shell is always grey/black
 const VALUE_COLOR = {
-  accent:  '#f0f0f0',
-  success: '#4ade80',
-  warning: '#fbbf24',
-  danger:  '#f87171',
-  info:    '#60a5fa',
-  cyan:    '#22d3ee',
+  accent:  'var(--text)',
+  success: 'var(--success)',
+  warning: 'var(--warning)',
+  danger:  'var(--danger)',
+  info:    'var(--info)',
+  cyan:    'var(--chart-5)',
 };
 
 export default function StatCard({ label, value, sub, color = 'accent', icon }) {
