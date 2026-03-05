@@ -2,22 +2,21 @@
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import PositionFilter from './PositionFilter';
 
-const PRESETS = [
-  { label: '7d',   days: 7   },
-  { label: '30d',  days: 30  },
-  { label: '3m',   days: 90  },
-  { label: '6m',   days: 180 },
-  { label: '1y',   days: 365 },
-];
-
 function daysAgo(n) {
   const d = new Date();
   d.setDate(d.getDate() - n);
   return d.toISOString().slice(0, 10);
 }
-function today() {
-  return new Date().toISOString().slice(0, 10);
-}
+function today() { return new Date().toISOString().slice(0, 10); }
+
+const PRESETS = [
+  { label: 'Today',     getStart: () => today(),     getEnd: () => today()     },
+  { label: 'Yesterday', getStart: () => daysAgo(1),  getEnd: () => daysAgo(1)  },
+  { label: '7d',        getStart: () => daysAgo(7),  getEnd: () => today()     },
+  { label: '30d',       getStart: () => daysAgo(30), getEnd: () => today()     },
+  { label: '3m',        getStart: () => daysAgo(90), getEnd: () => today()     },
+  { label: '6m',        getStart: () => daysAgo(180),getEnd: () => today()     },
+];
 
 export default function OverviewFilterBar({ positions, currentPosition, currentStart, currentEnd }) {
   const router      = useRouter();
@@ -34,7 +33,7 @@ export default function OverviewFilterBar({ positions, currentPosition, currentS
   };
 
   const activePreset = PRESETS.find(
-    (p) => currentStart === daysAgo(p.days) && currentEnd === today()
+    (p) => currentStart === p.getStart() && currentEnd === p.getEnd()
   )?.label ?? null;
 
   const hasFilters = currentPosition || currentStart || currentEnd;
@@ -81,7 +80,7 @@ export default function OverviewFilterBar({ positions, currentPosition, currentS
             return (
               <button
                 key={p.label}
-                onClick={() => push({ startDate: daysAgo(p.days), endDate: today() })}
+                onClick={() => push({ startDate: p.getStart(), endDate: p.getEnd() })}
                 style={{
                   padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 500,
                   cursor: 'pointer', border: '1px solid',

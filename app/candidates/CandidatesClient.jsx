@@ -17,12 +17,6 @@ function ScoreBar({ score }) {
   );
 }
 
-function ScoreBadge({ score }) {
-  if (score === null || score === undefined) return <span className="badge badge-gray">No score</span>;
-  if (score >= 70) return <span className="badge badge-green">{score}%</span>;
-  if (score >= 40) return <span className="badge badge-yellow">{score}%</span>;
-  return <span className="badge badge-red">{score}%</span>;
-}
 
 function avatarBg(str = '') {
   let h = 0;
@@ -30,12 +24,17 @@ function avatarBg(str = '') {
   return COLORS[Math.abs(h) % COLORS.length];
 }
 
-const PRESETS = [
-  { label:'7d', days:7 }, { label:'30d', days:30 },
-  { label:'3m', days:90 }, { label:'6m', days:180 }, { label:'1y', days:365 },
-];
 function daysAgo(n) { const d = new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); }
 function today()     { return new Date().toISOString().slice(0,10); }
+
+const PRESETS = [
+  { label:'Today',     getStart: () => today(),      getEnd: () => today()      },
+  { label:'Yesterday', getStart: () => daysAgo(1),   getEnd: () => daysAgo(1)   },
+  { label:'7d',        getStart: () => daysAgo(7),   getEnd: () => today()      },
+  { label:'30d',       getStart: () => daysAgo(30),  getEnd: () => today()      },
+  { label:'3m',        getStart: () => daysAgo(90),  getEnd: () => today()      },
+  { label:'6m',        getStart: () => daysAgo(180), getEnd: () => today()      },
+];
 
 export default function CandidatesClient({ candidates, positions, recruiters, filters }) {
   const router      = useRouter();
@@ -45,7 +44,6 @@ export default function CandidatesClient({ candidates, positions, recruiters, fi
   const [search,  setSearch]  = useState('');
   const [sortKey, setSortKey] = useState('score');
   const [sortDir, setSortDir] = useState('desc');
-  const [verdictFor, setVerdictFor] = useState(null); // candidate._id string
 
   const push = (updates) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -57,7 +55,7 @@ export default function CandidatesClient({ candidates, positions, recruiters, fi
     router.push(pathname);
   };
 
-  const activePreset = PRESETS.find(p => filters.startDate === daysAgo(p.days) && filters.endDate === today())?.label ?? null;
+  const activePreset = PRESETS.find(p => filters.startDate === p.getStart() && filters.endDate === p.getEnd())?.label ?? null;
 
   const toggle = (key) => {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -98,8 +96,6 @@ export default function CandidatesClient({ candidates, positions, recruiters, fi
   const passedCount = candidates.filter(c => c.score !== null && c.score >= 70).length;
 
   const hasFilters = filters.position || filters.startDate || filters.endDate || filters.recruiterEmail;
-
-  const verdictCandidate = verdictFor ? candidates.find(c => String(c._id) === verdictFor) : null;
 
   const COLS = [
     { key:'candidateName', label:'Candidate' },
@@ -202,7 +198,7 @@ export default function CandidatesClient({ candidates, positions, recruiters, fi
           <span style={{ fontSize:11, fontWeight:700, color:'var(--muted)', letterSpacing:'0.06em', textTransform:'uppercase', whiteSpace:'nowrap' }}>Period</span>
           <div style={{ display:'flex', gap:4 }}>
             {PRESETS.map(p => (
-              <button key={p.label} onClick={() => push({ startDate: daysAgo(p.days), endDate: today() })}
+              <button key={p.label} onClick={() => push({ startDate: p.getStart(), endDate: p.getEnd() })}
                 style={{ padding:'4px 10px', borderRadius:6, fontSize:12, fontWeight:500, cursor:'pointer', border:'1px solid',
                   background: activePreset===p.label ? 'rgba(99,102,241,0.12)' : 'var(--surface-2)',
                   borderColor: activePreset===p.label ? '#6366f1' : 'var(--border)',
@@ -247,12 +243,11 @@ export default function CandidatesClient({ candidates, positions, recruiters, fi
                     </span>
                   </th>
                 ))}
-                <th>Verdict</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={6} style={{ textAlign:'center', padding:'48px 16px', color:'var(--muted)' }}>No candidates found</td></tr>
+                <tr><td colSpan={5} style={{ textAlign:'center', padding:'48px 16px', color:'var(--muted)' }}>No candidates found</td></tr>
               )}
               {filtered.map((c, i) => (
                 <tr key={String(c._id)}>
@@ -278,18 +273,6 @@ export default function CandidatesClient({ candidates, positions, recruiters, fi
                   <td style={{ textAlign:'right', minWidth:130 }}>
                     <ScoreBar score={c.score} />
                   </td>
-                  <td>
-                    {c.verdict ? (
-                      <button
-                        onClick={() => setVerdictFor(v => v === String(c._id) ? null : String(c._id))}
-                        style={{ fontSize:11, padding:'3px 10px', borderRadius:6, cursor:'pointer', border:'1px solid var(--border)', background: verdictFor === String(c._id) ? 'var(--accent-dim)' : 'var(--surface-2)', color: verdictFor === String(c._id) ? 'var(--accent-hover)' : 'var(--muted-2)' }}
-                      >
-                        {verdictFor === String(c._id) ? 'Hide' : 'View'}
-                      </button>
-                    ) : (
-                      <span style={{ fontSize:11, color:'var(--muted)' }}>—</span>
-                    )}
-                  </td>
                 </tr>
               ))}
             </tbody>
@@ -297,28 +280,6 @@ export default function CandidatesClient({ candidates, positions, recruiters, fi
         </div>
       </div>
 
-      {/* Verdict drawer */}
-      {verdictCandidate && (
-        <div style={{
-          marginTop:12, padding:20, borderRadius:14,
-          background:'var(--surface)', border:'1px solid var(--border)',
-        }}>
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
-            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-              <div className="avatar" style={{ background: avatarBg(verdictCandidate.candidateName || ''), color:'#fff', fontSize:11 }}>
-                {(verdictCandidate.candidateName || '?').slice(0,2).toUpperCase()}
-              </div>
-              <div>
-                <span style={{ fontWeight:600, fontSize:13, color:'var(--text)' }}>{verdictCandidate.candidateName}</span>
-                <span style={{ fontSize:11, color:'var(--muted)', marginLeft:10 }}>{verdictCandidate.applyFor}</span>
-              </div>
-              <ScoreBadge score={verdictCandidate.score} />
-            </div>
-            <button onClick={() => setVerdictFor(null)} style={{ background:'none', border:'none', color:'var(--muted)', cursor:'pointer', fontSize:18 }}>×</button>
-          </div>
-          <p style={{ fontSize:13, color:'var(--text-2)', lineHeight:1.7 }}>{verdictCandidate.verdict}</p>
-        </div>
-      )}
     </div>
   );
 }
