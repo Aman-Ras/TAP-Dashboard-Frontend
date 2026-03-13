@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import StatCard from '../../../components/StatCard';
 import DateRangePicker from '../../../components/DateRangePicker';
@@ -31,6 +31,8 @@ const IconCalendar = () => <svg width="14" height="14" viewBox="0 0 24 24" fill=
 const IconFile    = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>;
 const IconCheck   = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
 const IconX       = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+const IconChevronDown = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>;
+const IconChevronUp   = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>;
 
 const PAGE_SIZE = 50;
 
@@ -78,6 +80,7 @@ export default function RecruiterDetailClient({ data, email, initialStart, initi
     position:  initialPosition,
   });
   const [page, setPage] = useState(1);
+  const [expandedRow, setExpandedRow] = useState(null);
 
   const push = (next) => {
     const merged = { ...filters, ...next };
@@ -257,18 +260,80 @@ export default function RecruiterDetailClient({ data, email, initialStart, initi
                   <tbody>
                     {resumeSessions.list.slice(0,50).map((s, i) => {
                       const pr = s.total_resumes_uploaded ? Math.round((s.resumes_passed_threshold / s.total_resumes_uploaded) * 100) : 0;
+                      const isExpanded = expandedRow === s._id;
                       return (
-                        <tr key={i}>
-                          <td style={{ fontWeight:500 }}>{s.jd_position || '—'}</td>
-                          <td style={{ color:'var(--muted)', fontSize:12 }}>
-                            {s.created_at ? new Date(s.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}
-                          </td>
-                          <td style={{ textAlign:'right' }}>{s.total_resumes_uploaded}</td>
-                          <td style={{ textAlign:'right', color:'var(--success)' }}>{s.resumes_passed_threshold}</td>
-                          <td style={{ textAlign:'right' }}>
-                            <span className={`badge ${pr >= 70 ? 'badge-green' : 'badge-yellow'}`}>{pr}%</span>
-                          </td>
-                        </tr>
+                        <React.Fragment key={s._id || i}>
+                          <tr onClick={() => setExpandedRow(isExpanded ? null : s._id)} style={{ cursor: 'pointer', background: isExpanded ? 'var(--surface-2)' : undefined }}>
+                            <td style={{ fontWeight:500 }}>
+                              <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                                <span style={{ color:'var(--muted)', display: 'flex' }}>{isExpanded ? <IconChevronUp /> : <IconChevronDown />}</span>
+                                {s.jd_position || '—'}
+                              </div>
+                            </td>
+                            <td style={{ color:'var(--muted)', fontSize:12 }}>
+                              {s.created_at ? new Date(s.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}
+                            </td>
+                            <td style={{ textAlign:'right' }}>{s.total_resumes_uploaded}</td>
+                            <td style={{ textAlign:'right', color:'var(--success)' }}>{s.resumes_passed_threshold}</td>
+                            <td style={{ textAlign:'right' }}>
+                              <span className={`badge ${pr >= 70 ? 'badge-green' : 'badge-yellow'}`}>{pr}%</span>
+                            </td>
+                          </tr>
+                          {isExpanded && (
+                            <tr>
+                              <td colSpan="5" style={{ padding: 0, borderBottom: '1px solid var(--border)' }}>
+                                <div style={{ padding: '16px 24px', background: 'var(--surface-2)', borderTop: '1px dashed var(--border)' }}>
+                                  <h4 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, color: 'var(--text)' }}>Matched Resumes</h4>
+                                  {s.resumes && s.resumes.length > 0 ? (
+                                    <div style={{ border:'1px solid var(--border)', borderRadius:8, overflow:'hidden', background:'var(--surface)' }}>
+                                      <div style={{ overflowX:'auto' }}>
+                                        <table className="data-table" style={{ margin:0, width:'100%' }}>
+                                          <thead>
+                                            <tr>
+                                              <th>Candidate</th>
+                                              <th>Email</th>
+                                              <th>Phone</th>
+                                              <th>Status</th>
+                                              <th style={{ textAlign:'right' }}>Score</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {s.resumes.map((r, ri) => (
+                                              <tr key={ri}>
+                                                <td style={{ fontWeight:500, fontSize:13 }}>{r.name || 'Unknown'}</td>
+                                                <td style={{ color:'var(--muted-2)', fontSize:12 }}>{r.email || '—'}</td>
+                                                <td style={{ color:'var(--muted-2)', fontSize:12 }}>{r.phone || '—'}</td>
+                                                <td>
+                                                  {r.passed_threshold ? <span className="badge badge-green">Passed</span> : <span style={{color:'var(--muted)'}}>—</span>}
+                                                </td>
+                                                <td style={{ textAlign:'right', width: 140 }}>
+                                                  <div style={{ display:'flex', alignItems:'center', gap:8, justifyContent:'flex-end' }}>
+                                                    <div style={{ width:60, height:5, borderRadius:3, background:'var(--surface-3)', overflow:'hidden' }}>
+                                                      <div style={{
+                                                        height:'100%', borderRadius:3,
+                                                        width:`${r.score || 0}%`,
+                                                        background: r.score >= 70 ? 'var(--success)' : r.score >= 50 ? 'var(--warning)' : 'var(--danger)',
+                                                      }} />
+                                                    </div>
+                                                    <span style={{ fontSize:12, fontWeight:600, color: r.score >= 70 ? 'var(--success)' : r.score >= 50 ? 'var(--warning)' : 'var(--danger)', minWidth:30 }}>
+                                                      {r.score || 0}%
+                                                    </span>
+                                                  </div>
+                                                </td>
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div style={{ fontSize: 13, color: 'var(--muted)' }}>No detailed resume data available.</div>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
                       );
                     })}
                   </tbody>
