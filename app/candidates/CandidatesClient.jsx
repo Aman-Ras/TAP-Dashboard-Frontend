@@ -200,9 +200,9 @@ export default function CandidatesClient({ candidates, positions, recruiters, fi
             {PRESETS.map(p => (
               <button key={p.label} onClick={() => push({ startDate: p.getStart(), endDate: p.getEnd() })}
                 style={{ padding:'4px 10px', borderRadius:6, fontSize:12, fontWeight:500, cursor:'pointer', border:'1px solid',
-                  background: activePreset===p.label ? 'rgba(99,102,241,0.12)' : 'var(--surface-2)',
-                  borderColor: activePreset===p.label ? '#6366f1' : 'var(--border)',
-                  color: activePreset===p.label ? '#818cf8' : 'var(--muted-2)',
+                  background: activePreset===p.label ? 'rgba(185,28,28,0.12)' : 'var(--surface-2)',
+                  borderColor: activePreset===p.label ? '#b91c1c' : 'var(--border)',
+                  color: activePreset===p.label ? '#f87171' : 'var(--muted-2)',
                 }}>
                 {p.label}
               </button>

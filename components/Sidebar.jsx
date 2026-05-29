@@ -1,7 +1,6 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import ThemeToggle from './ThemeToggle';
 
 const NAV = [
   {
@@ -69,27 +68,12 @@ export default function Sidebar({ open = false, onClose }) {
       </button>
 
       {/* Logo */}
-      <div
-        className="px-5 py-5"
-        style={{ borderBottom: '1px solid var(--border-subtle)' }}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: 'var(--surface-3)', border: '1px solid var(--border)' }}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-            </svg>
-          </div>
-          <div>
-            <div className="text-sm font-bold leading-tight" style={{ color: 'var(--text)' }}>
-              RecruiterDash
-            </div>
-            <div className="text-[10px] leading-tight mt-0.5" style={{ color: 'var(--muted)' }}>
-              Internal Analytics
-            </div>
-          </div>
+      <div className="px-5 py-6">
+        <div className="flex items-center gap-1.5">
+          <span style={{ fontSize: 24, fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px', lineHeight: 1 }}>
+            berlin
+          </span>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#f87171', display: 'inline-block', flexShrink: 0 }} />
         </div>
       </div>
 
@@ -113,38 +97,6 @@ export default function Sidebar({ open = false, onClose }) {
         ))}
       </nav>
 
-      {/* Footer */}
-      <div
-        className="px-3 py-4"
-        style={{ borderTop: '1px solid var(--border-subtle)' }}
-      >
-        {/* Theme toggle */}
-        <div className="px-1 mb-3 flex justify-center">
-          <ThemeToggle />
-        </div>
-
-        <div
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg"
-          style={{ background: 'var(--surface-2)' }}
-        >
-          <div
-            className="avatar text-[11px] font-bold flex-shrink-0"
-            style={{ background: 'var(--surface-3)', border: '1px solid var(--border)', color: 'var(--text)' }}
-          >
-            RD
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-xs font-semibold truncate" style={{ color: 'var(--text)' }}>Dashboard</div>
-            <div className="text-[10px] truncate" style={{ color: 'var(--muted)' }}>Read-only · Live</div>
-          </div>
-          {/* Status dot */}
-          <div
-            className="w-2 h-2 rounded-full flex-shrink-0"
-            style={{ background: 'var(--success)' }}
-            title="Connected to MongoDB"
-          />
-        </div>
-      </div>
     </aside>
   );
 }

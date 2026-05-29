@@ -31,13 +31,9 @@ export default function NavWrapper({ children }) {
             <line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
-        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-          <div style={{ width:26, height:26, borderRadius:7, background:'var(--surface-3)', border:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-            </svg>
-          </div>
-          <span style={{ fontSize:14, fontWeight:700, color:'var(--text)' }}>RecruiterDash</span>
+        <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+          <span style={{ fontSize:18, fontWeight:800, color:'#ffffff', letterSpacing:'-0.5px', lineHeight:1 }}>berlin</span>
+          <span style={{ width:6, height:6, borderRadius:'50%', background:'#f87171', display:'inline-block', flexShrink:0 }} />
         </div>
       </div>
 
